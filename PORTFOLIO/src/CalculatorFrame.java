@@ -1,17 +1,24 @@
-// --- CalculatorFrame を JPanel として実装（まだ Controller 未導入） ---
+/**
+ * UIクラス
+ * -画面を表示
+ * -入力イベントの受取
+ * -入力の通知
+ */
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
 public class CalculatorFrame {
+
     private JFrame frame;
     private JLabel displayLabel;
     private JPanel keypadPanel;
-    private CalculatorModel model;
+
+    // ★ Controller を保持（Modelは触らない）
+    private CalculatorController controller;
 
     public CalculatorFrame() {
-        model = new CalculatorModel();
 
         // JFrame設定
         frame = new JFrame("Calculator");
@@ -22,7 +29,9 @@ public class CalculatorFrame {
         // 表示ラベル
         displayLabel = new JLabel("0", SwingConstants.RIGHT);
         displayLabel.setFont(new Font("Arial", Font.PLAIN, 24));
-        displayLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        displayLabel.setBorder(
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        );
         frame.add(displayLabel, BorderLayout.NORTH);
 
         // ボタンパネル
@@ -40,36 +49,57 @@ public class CalculatorFrame {
         for (String label : buttonLabels) {
             JButton button = new JButton(label);
             button.setFont(new Font("Arial", Font.PLAIN, 18));
-            button.addActionListener(new ButtonClickListener()); 
+            button.addActionListener(new ButtonClickListener());
             keypadPanel.add(button);
         }
 
         frame.add(keypadPanel, BorderLayout.CENTER);
     }
 
-    /** 表示更新 */
-    private void updateDisplay() {
-        displayLabel.setText(model.getDisplayText());
+    /* ------------------------
+     * Controller 接続
+     * ------------------------ */
+    public void bindController(CalculatorController controller) {
+        this.controller = controller;
     }
 
-    /** 表示開始 */
+    /* ------------------------
+     * 表示更新（Controller から呼ばれる）
+     * ------------------------ */
+    public void setDisplay(String text) {
+        displayLabel.setText(text);
+    }
+
+    /* ------------------------
+     * 表示開始
+     * ------------------------ */
     public void show() {
         frame.setVisible(true);
     }
 
-    /** ボタン押下リスナー */
+    /* ------------------------
+     * ボタン押下リスナー
+     * ------------------------ */
     private class ButtonClickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+
             String cmd = e.getActionCommand();
 
-            if (cmd.equals("C")) { 
-                model = new CalculatorModel(); // Cボタンでリセット
-            } else {
-                model.processInput(cmd);
-            }
+            if (controller == null) return;
 
-            updateDisplay(); // ★ displayLabelを更新！
+            if (cmd.matches("[0-9]")) {
+                controller.onDigit(cmd.charAt(0));
+            } else if (cmd.equals(".")) {
+                controller.onDot();
+            } else if (cmd.equals("=")) {
+                controller.onEquals();
+            } else if (cmd.equals("C")) {
+                controller.onClear();
+            } else {
+                // + - × /
+                controller.onOperator(cmd);
+            }
         }
     }
 }
