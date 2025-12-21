@@ -1,7 +1,14 @@
 /**
- * enumによって式の型翻訳を行うクラス
- * -「UI表示文字」→「計算ロジック」の変換
- * -更新：enumMapからHashMapに変更
+ * 演算子を表す列挙型。
+ *
+ * 本列挙型は、UI 上で入力される演算子表示と、
+ * 計算処理で使用する演算ロジックを対応付ける。
+ *
+ * 各演算子は対応する計算処理を関数として保持し、
+ * CalculatorModel から呼び出される。
+ *
+ * 除算時の 0 除算などの計算エラーは例外として通知し、
+ * エラー状態への遷移判断は Model 側に委ねる。
  */
 
 import java.math.BigDecimal;
@@ -11,27 +18,30 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 public enum Operator {
-    
 
     ADD("+", "+", BigDecimal::add),
     SUB("-", "-", BigDecimal::subtract),
-    ML("×", "*", BigDecimal::multiply),
-    DIV("÷", "/", (l, r) -> {
-        if (r.compareTo(BigDecimal.ZERO) == 0) {
+    MUL("×", "*", BigDecimal::multiply),
+    DIV("÷", "/", (left, right) -> {
+        if (right.compareTo(BigDecimal.ZERO) == 0) {
             throw new ArithmeticException("Divide by zero");
         }
-        return l.divide(r, 10, RoundingMode.HALF_UP);
+        return left.divide(right, 10, RoundingMode.HALF_UP);
     });
-    /** UIに表示する文字 */
+
+    //UIに表示する文字（+, × など）
     private final String display;
 
-    /** 内部処理用の記号 */
+    //内部処理・ログ用の記号（+, *, / など） 
     private final String symbol;
-    
+
+    //計算処理 
     private final BiFunction<BigDecimal, BigDecimal, BigDecimal> action;
-    Operator(String display,
+    Operator(
+            String display,
             String symbol,
-            BiFunction<BigDecimal, BigDecimal, BigDecimal> action) {
+            BiFunction<BigDecimal, BigDecimal, BigDecimal> action
+    ) {
         this.display = display;
         this.symbol = symbol;
         this.action = action;
@@ -49,21 +59,23 @@ public enum Operator {
         return action.apply(left, right);
     }
 
-    /* ---------- UI表示 → Operator のマッピング ---------- */
+    //UI表示 → Operator のマッピング 
+
     private static final Map<String, Operator> DISPLAY_MAP = new HashMap<>();
 
     static {
-        for (Operator op : values()) {
-            DISPLAY_MAP.put(op.display, op);
+        for (Operator operator : values()) {
+            DISPLAY_MAP.put(operator.display, operator);
         }
     }
 
-    /** UIボタン文字から Operator を取得 */
+    /**
+     * UIボタン表示文字から Operator を取得する
+     *
+     * @param display UI表示文字
+     * @return 対応する Operator（存在しない場合は null）
+     */
     public static Operator fromDisplay(String display) {
         return DISPLAY_MAP.get(display);
     }
 }
-
-
-
-

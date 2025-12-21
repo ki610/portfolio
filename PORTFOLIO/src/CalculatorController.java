@@ -1,6 +1,12 @@
 /**
- * 入力状態を分類し、他クラスに振り分けるクラス
- * -
+ * 制御クラス。
+ *
+ * 本クラスは、View（CalculatorFrame）から通知される
+ * ボタンおよびキー入力イベントを受け取り、
+ * 対応する処理を Model（CalculatorModel）へ委譲する。
+ *
+ * 計算ロジックや入力状態の管理は行わず、
+ * Model の状態変化に応じて表示更新を View に指示する。
  */
 public class CalculatorController {
 
@@ -15,8 +21,8 @@ public class CalculatorController {
     // ------------------------
     // 数字入力
     // ------------------------
-    public void onDigit(char ch) {
-        model.appendDigit(ch);
+    public void onDigit(char digit) {
+        model.appendDigit(digit);
         updateView();
     }
 
@@ -31,11 +37,13 @@ public class CalculatorController {
     // ------------------------
     // 演算子
     // ------------------------
-    public void onOperator(String displaySymbol) {
-        Operator op = Operator.fromDisplay(displaySymbol);
-        if (op == null) return;
-
-        model.inputOperator(op);
+    // 演算子
+    public void onOperator(String operatorSymbol) {
+        Operator operator = Operator.fromDisplay(operatorSymbol);
+        if (operator == null) {
+            return;
+        }
+        model.inputOperator(operator);
         updateView();
     }
 

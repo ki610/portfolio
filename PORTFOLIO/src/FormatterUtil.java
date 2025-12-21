@@ -1,26 +1,33 @@
+/**
+ * 表示整形用ユーティリティクラス。
+ *
+ * 本クラスは、計算結果の BigDecimal を電卓画面表示用の
+ * 文字列に整形する処理を提供する。
+ *
+ * 数値の桁数が maxDigits を超える場合は指数表記とし、
+ * 整数値の場合は不要な小数点（.0）を付与しない。
+ * また、末尾の不要な 0 は stripTrailingZeros() により除去する。
+ *
+ * 本クラスは計算処理や状態管理は行わない。
+ */
 import java.math.BigDecimal;
 
 public class FormatterUtil {
-
-    /**
-     * 計算結果の BigDecimal を電卓表示用の文字列に整形する。
-     * - maxDigits を超えたら指数表記
-     * - 整数は ".0" を付けない
-     * - 無駄な 0 は stripTrailingZeros() で削除
-     */
     public static String formatForDisplay(BigDecimal value, int maxDigits) {
-        if (value == null) return "0";
-
-        BigDecimal normalized = value.stripTrailingZeros();
+    if (value == null) return "0";
+        BigDecimal normalized = value.stripTrailingZeros();//末尾の無意味な0除去
         String plain = normalized.toPlainString();
 
-        // マイナス符号と小数点以外の桁数を取得
+        // マイナス符号と小数点を除いた桁数
         int digits = plain.replace("-", "").replace(".", "").length();
 
-        // 指数表記判定
+        //結果8桁超過時は指数表記
         if (digits > maxDigits) {
-            // Java の %e は必ず小文字 e（電卓でも一般的）
-            return String.format("%e", normalized);
+            // BigDecimal の指数表記を使用（不要な 0 は既に除去済み）
+            String exp = normalized.toEngineeringString();
+
+            // E → e に統一（仕様）
+            return exp.replace("E", "e");
         }
 
         return plain;
