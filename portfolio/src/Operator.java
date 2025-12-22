@@ -8,13 +8,14 @@
  * CalculatorModel から呼び出される。
  *
  * 除算時の 0 除算などの計算エラーは例外として通知し、
- * エラー状態への遷移判断は Model 側に委ねる。
+ * Model 側でエラー状態へ遷移した場合は、
+ * 画面表示として「ERROR」を表示する仕様とする。
  */
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
+//演算処理を 関数として保持するために使う、「引数2つ → 戻り値1つ」の関数型インタフェース
 import java.util.function.BiFunction;
 
 public enum Operator {
@@ -28,13 +29,10 @@ public enum Operator {
         }
         return left.divide(right, 10, RoundingMode.HALF_UP);
     });
-
     //UIに表示する文字（+, × など）
     private final String display;
-
     //内部処理・ログ用の記号（+, *, / など） 
     private final String symbol;
-
     //計算処理 
     private final BiFunction<BigDecimal, BigDecimal, BigDecimal> action;
     Operator(
@@ -46,32 +44,24 @@ public enum Operator {
         this.symbol = symbol;
         this.action = action;
     }
-
     public String getDisplay() {
         return display;
     }
-
     public String getSymbol() {
         return symbol;
     }
-
     public BigDecimal apply(BigDecimal left, BigDecimal right) {
         return action.apply(left, right);
     }
-
     //UI表示 → Operator のマッピング 
-
     private static final Map<String, Operator> DISPLAY_MAP = new HashMap<>();
-
     static {
         for (Operator operator : values()) {
             DISPLAY_MAP.put(operator.display, operator);
         }
     }
-
     /**
      * UIボタン表示文字から Operator を取得する
-     *
      * @param display UI表示文字
      * @return 対応する Operator（存在しない場合は null）
      */

@@ -13,24 +13,33 @@
 import java.math.BigDecimal;
 
 public class FormatterUtil {
+
+    //Model から呼ばれ、View に渡される文字列を生成する
     public static String formatForDisplay(BigDecimal value, int maxDigits) {
-    if (value == null) return "0";
-        BigDecimal normalized = value.stripTrailingZeros();//末尾の無意味な0除去
-        String plain = normalized.toPlainString();
-
-        // マイナス符号と小数点を除いた桁数
-        int digits = plain.replace("-", "").replace(".", "").length();
-
-        //結果8桁超過時は指数表記
-        if (digits > maxDigits) {
-            // BigDecimal の指数表記を使用（不要な 0 は既に除去済み）
-            String exp = normalized.toEngineeringString();
-
-            // E → e に統一（仕様）
-            return exp.replace("E", "e");
+        /*
+         * 末尾の不要な 0 を除去
+         */
+        if (value == null) return "0";
+        //小数点の.0表示を削除、だけを整える。計算値は変えず、表示だけを整える
+        BigDecimal normalized = value.stripTrailingZeros();
+        // 整数部の桁数（符号なし）
+        int integerDigits =normalized.abs().toBigInteger().toString().length();
+        // 規定桁数以内なら通常表示
+        if (integerDigits <= maxDigits) {
+            return normalized.toPlainString();
         }
-
-        return plain;
+        /*
+         * ---- 指数表記 ----
+         * 先頭 1 桁 × 10^n
+         */
+        //10の何乗か
+        int exponent = integerDigits - 1;
+        //小数点を左に移動、不要な 0 を削除
+        BigDecimal mantissa =normalized.movePointLeft(exponent).stripTrailingZeros();
+        return mantissa.toPlainString() + "e" + exponent;//e を使う
     }
 }
+
+
+
 

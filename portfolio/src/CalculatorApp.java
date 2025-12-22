@@ -9,9 +9,10 @@
  */
 
 public class CalculatorApp {
-
+    
     public static void main(String[] args) {
 
+        //Swing の画面処理をイベントディスパッチスレッド（EDT） で実行させる
         javax.swing.SwingUtilities.invokeLater(() -> {
 
             // ------------------------
@@ -27,12 +28,9 @@ public class CalculatorApp {
             // ------------------------
             // 入力制御
             // ------------------------
-            CalculatorController controller =
-                new CalculatorController(model, frame);
-
+            CalculatorController controller =new CalculatorController(model, frame);
             // View と Controller を関連付ける
             frame.bindController(controller);
-
             // 画面表示
             frame.show();
         });

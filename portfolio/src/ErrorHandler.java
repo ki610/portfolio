@@ -13,10 +13,8 @@
  * - 将来的にログファイル出力等へ拡張可能な構成とする
  */
 public class ErrorHandler {
-
     // ユーティリティクラスのためインスタンス化を禁止
     private ErrorHandler() {}
-
     /**
      * 計算中に発生した例外を処理する。
      *

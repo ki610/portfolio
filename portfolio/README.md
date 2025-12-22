@@ -1,18 +1,27 @@
-## Getting Started
+# 電卓アプリ
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+## 概要
+Java（Swing）で実装した四則演算対応の電卓アプリです。
+BigDecimal を使用し、高精度な計算と入力制御を重視しています。
 
-## Folder Structure
+## 主な仕様
+- 四則演算（＋、－、×、÷）に対応
+- 数値入力は最大 8 桁まで（小数点・負号は除外）
+- 小数点は 1 回のみ入力可能
+- 演算子の連続入力時は、最後に入力された演算子が有効
+- 演算子入力直後の「=」は計算されない
+- 計算結果が 8 桁を超える場合は指数表記で表示
+- 0 除算などの計算エラー時は「ERROR」と表示
 
-The workspace contains two folders by default, where:
+## 操作方法
+1. 数値を入力
+2. 演算子を選択
+3. 「=」ボタンで計算結果を表示  
+   ※「C」で全クリア  
+   ※「÷0」はエラー表示  
+   ※エラーまたは「=」押下までは、数値入力と演算子入力を繰り返し可能
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+## 技術構成
+- Java
+- Swing
+- MVC ライク構成（Model / View / Controller）
